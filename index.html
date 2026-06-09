@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Skills Discovery Map — Find Your Strengths & Build Your Future</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --rose:    #C97B84;
+  --rose-lt: #F2DDE0;
+  --rose-dk: #8B4E56;
+  --sage:    #7D9E8C;
+  --sage-lt: #D8EBE2;
+  --gold:    #C9A96E;
+  --gold-lt: #F5ECD9;
+  --cream:   #FAF7F2;
+  --warm:    #F0EBE3;
+  --text:    #2C2420;
+  --muted:   #7A6E6A;
+  --border:  rgba(150,110,100,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Jost',sans-serif;
+  background:var(--cream);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Background texture */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(201,123,132,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 90% 80%, rgba(125,158,140,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 50% 50%, rgba(201,169,110,.05) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* Decorative petals */
+.petal{position:fixed;border-radius:50% 0 50% 0;opacity:.06;pointer-events:none;z-index:0}
+.p1{width:300px;height:300px;background:var(--rose);top:-80px;right:-80px;transform:rotate(30deg)}
+.p2{width:200px;height:200px;background:var(--sage);bottom:10%;left:-60px;transform:rotate(-20deg)}
+.p3{width:150px;height:150px;background:var(--gold);bottom:30%;right:5%;transform:rotate(45deg)}
+
+.container{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:0 24px 80px}
+
+/* HERO */
+.hero{text-align:center;padding:64px 24px 48px;position:relative}
+.hero-eyebrow{
+  font-family:'Jost',sans-serif;
+  font-size:11px;letter-spacing:.18em;font-weight:500;
+  color:var(--rose);text-transform:uppercase;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:center;gap:12px
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:'';display:block;width:40px;height:1px;background:var(--rose);opacity:.5
+}
+.hero h1{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(36px,6vw,64px);
+  font-weight:300;line-height:1.15;
+  color:var(--text);margin-bottom:16px
+}
+.hero h1 em{font-style:italic;color:var(--rose)}
+.hero-sub{
+  font-size:15px;color:var(--muted);line-height:1.8;
+  max-width:520px;margin:0 auto 32px;font-weight:300
+}
+.hero-divider{
+  display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:40px
+}
+.hero-divider span{font-size:18px;color:var(--rose);opacity:.5}
+.hero-divider::before,.hero-divider::after{
+  content:'';flex:1;max-width:120px;height:1px;
+  background:linear-gradient(to right, transparent, var(--border))
+}
+.hero-divider::after{background:linear-gradient(to left, transparent, var(--border))}
+
+/* Progress dots */
+.progress{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:40px}
+.prog-step{
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  cursor:pointer;padding:0 4px
+}
+.prog-dot{
+  width:32px;height:32px;border-radius:50%;
+  border:1.5px solid var(--border);
+  background:white;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500;color:var(--muted);
+  transition:all .3s;position:relative;z-index:1
+}
+.prog-dot.active{background:var(--rose);border-color:var(--rose);color:white}
+.prog-dot.done{background:var(--sage);border-color:var(--sage);color:white}
+.prog-label{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500;white-space:nowrap}
+.prog-line{width:40px;height:1px;background:var(--border);margin-bottom:22px;flex-shrink:0}
+
+/* Phase panels */
+.phase{display:none;animation:fadeUp .4s ease}
+.phase.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Section heading */
+.section-head{text-align:center;margin-bottom:32px}
+.section-head h2{
+  font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:400;
+  color:var(--text);margin-bottom:8px
+}
+.section-head p{font-size:14px;color:var(--muted);line-height:1.7;font-weight:300}
+
+/* Category tabs */
+.cat-tabs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:28px}
+.cat-tab{
+  padding:7px 16px;border-radius:30px;
+  border:1px solid var(--border);
+  background:white;font-size:12px;font-weight:500;
+  cursor:pointer;color:var(--muted);
+  transition:all .2s;letter-spacing:.03em;
+  font-family:'Jost',sans-serif
+}
+.cat-tab:hover{border-color:var(--rose);color:var(--rose)}
+.cat-tab.active{background:var(--rose);border-color:var(--rose);color:white}
+
+/* Experience grid */
+.exp-section{display:none}.exp-section.visible{display:block}
+.exp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:560px){.exp-grid{grid-template-columns:1fr}}
+.exp-card{
+  background:white;border:1px solid var(--border);border-radius:14px;
+  padding:16px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden
+}
+.exp-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:transparent;transition:background .2s;border-radius:3px 0 0 3px
+}
+.exp-card:hover{border-color:rgba(201,123,132,.3);transform:translateY(-1px);box-shadow:0 4px 20px rgba(201,123,132,.1)}
+.exp-card.selected{border-color:var(--rose);background:linear-gradient(135deg,#fff 0%,var(--rose-lt) 100%)}
+.exp-card.selected::before{background:var(--rose)}
+.exp-check{
+  width:20px;height:20px;border-radius:50%;
+  border:1.5px solid var(--border);
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:10px;color:transparent;float:right;margin-left:8px;margin-top:1px;
+  transition:all .2s;flex-shrink:0
+}
+.exp-card.selected .exp-check{background:var(--rose);border-color:var(--rose);color:white}
+.exp-title{font-size:13px;font-weight:500;color:var(--text);line-height:1.4;padding-right:4px}
+.exp-card.selected .exp-title{color:var(--rose-dk)}
+.exp-examples{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.5}
+
+.sublabel{
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--sage);font-weight:500;margin:24px 0 10px;
+  display:flex;align-items:center;gap:10px
+}
+.sublabel::after{content:'';flex:1;height:1px;background:var(--sage-lt)}
+
+/* Strength cards */
+.strength-grid{display:grid;gap:12px}
+.str-card{
+  background:white;border:1px solid var(--border);
+  border-radius:16px;padding:20px;
+  border-left:3px solid var(--rose);
+  transition:box-shadow .2s
+}
+.str-card:hover{box-shadow:0 4px 24px rgba(0,0,0,.06)}
+.str-card.sage{border-left-color:var(--sage)}
+.str-card.gold{border-left-color:var(--gold)}
+.str-label{
+  font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:500;
+  color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:8px
+}
+.str-badge{
+  font-size:10px;font-family:'Jost',sans-serif;font-weight:500;
+  letter-spacing:.08em;text-transform:uppercase;
+  background:var(--rose-lt);color:var(--rose-dk);
+  padding:2px 8px;border-radius:10px
+}
+.str-card.sage .str-badge{background:var(--sage-lt);color:#3D6B56}
+.str-card.gold .str-badge{background:var(--gold-lt);color:#8B6B30}
+.str-desc{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px;font-weight:300}
+.str-roles{display:flex;flex-wrap:wrap;gap:6px}
+.str-role{
+  font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500;
+  background:var(--warm);color:var(--muted);border:1px solid var(--border)
+}
+
+/* Confidence layer */
+.conf-block{
+  background:white;border:1px solid var(--border);
+  border-radius:20px;padding:28px;margin-bottom:16px
+}
+.conf-block h3{
+  font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;
+  color:var(--text);margin-bottom:6px;display:flex;align-items:center;gap:10px
+}
+.conf-block .conf-icon{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0
+}
+.conf-block .conf-intro{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;font-weight:300}
+.reframe-list{list-style:none}
+.reframe-list li{
+  padding:12px 0;border-bottom:1px solid var(--warm);
+  display:grid;grid-template-columns:160px 1fr;gap:16px;
+  font-size:13px;line-height:1.6;align-items:start
+}
+.reframe-list li:last-child{border-bottom:none}
+.reframe-list .shrink{
+  font-weight:500;color:var(--rose-dk);font-style:italic;
+  font-family:'Cormorant Garamond',serif;font-size:14px
+}
+.reframe-list .expand{color:var(--muted)}
+@media(max-width:520px){.reframe-list li{grid-template-columns:1fr}.reframe-list .shrink{border-left:3px solid var(--rose);padding-left:10px}}
+
+.asset-pills{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.asset-pill{
+  font-size:12px;padding:5px 14px;border-radius:20px;font-weight:500;
+  background:linear-gradient(135deg,var(--sage-lt),var(--gold-lt));
+  color:var(--text);border:1px solid rgba(125,158,140,.2)
+}
+.pull-quote{
+  background:linear-gradient(135deg,var(--rose-lt),var(--gold-lt));
+  border-radius:16px;padding:24px 28px;
+  font-family:'Cormorant Garamond',serif;
+  font-size:18px;font-style:italic;font-weight:400;
+  color:var(--text);line-height:1.7;margin:16px 0;
+  position:relative;text-align:center
+}
+.pull-quote::before{
+  content:'\201C';font-size:72px;color:var(--rose);opacity:.2;
+  position:absolute;top:-10px;left:16px;line-height:1;font-family:'Cormorant Garamond',serif
+}
+.reflect-card{
+  background:var(--warm);border-radius:14px;padding:18px 20px;margin-bottom:10px;
+  border-left:3px solid var(--gold)
+}
+.reflect-q{font-size:14px;font-weight:500;color:var(--text);margin-bottom:5px}
+.reflect-a{font-size:12px;color:var(--muted);line-height:1.6;font-weight:300}
+.reflect-input{
+  width:100%;margin-top:10px;padding:10px 14px;
+  border:1px solid var(--border);border-radius:10px;
+  background:white;font-family:'Jost',sans-serif;font-size:13px;color:var(--text);
+  resize:vertical;min-height:60px;outline:none;transition:border .2s
+}
+.reflect-input:focus{border-color:var(--gold)}
+.reflect-input::placeholder{color:rgba(122,110,106,.5)}
+
+/* CTA */
+.cta-block{
+  background:linear-gradient(135deg, var(--rose-dk) 0%, #6B3A40 100%);
+  border-radius:24px;padding:40px 32px;text-align:center;margin-top:40px;
+  position:relative;overflow:hidden
+}
+.cta-block::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:180px;height:180px;border-radius:50%;
+  background:rgba(255,255,255,.05)
+}
+.cta-block::after{
+  content:'';position:absolute;bottom:-60px;left:-30px;
+  width:220px;height:220px;border-radius:50%;
+  background:rgba(255,255,255,.04)
+}
+.cta-eyebrow{
+  font-size:10px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(255,255,255,.6);margin-bottom:14px;font-weight:500
+}
+.cta-block h2{
+  font-family:'Cormorant Garamond',serif;font-size:34px;font-weight:300;
+  color:white;margin-bottom:12px;line-height:1.2;position:relative;z-index:1
+}
+.cta-block h2 em{font-style:italic}
+.cta-block p{
+  font-size:14px;color:rgba(255,255,255,.75);line-height:1.7;
+  max-width:440px;margin:0 auto 28px;font-weight:300;position:relative;z-index:1
+}
+.cta-btn{
+  display:inline-block;
+  background:white;color:var(--rose-dk);
+  font-family:'Jost',sans-serif;font-size:13px;font-weight:500;
+  letter-spacing:.06em;padding:14px 32px;border-radius:50px;
+  text-decoration:none;border:none;cursor:pointer;
+  transition:all .25s;position:relative;z-index:1
+}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2);background:var(--gold-lt)}
+.cta-fine{font-size:11px;color:rgba(255,255,255,.4);margin-top:16px;position:relative;z-index:1}
+
+/* Nav buttons */
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:32px;gap:12px}
+.btn-back{
+  background:transparent;border:1px solid var(--border);
+  border-radius:50px;padding:11px 24px;font-size:13px;
+  font-family:'Jost',sans-serif;font-weight:500;
+  color:var(--muted);cursor:pointer;transition:all .2s
+}
+.btn-back:hover{border-color:var(--muted);color:var(--text)}
+.btn-next{
+  background:var(--rose);border:none;border-radius:50px;
+  padding:12px 32px;font-size:13px;
+  font-family:'Jost',sans-serif;font-weight:500;
+  color:white;cursor:pointer;transition:all .2s;margin-left:auto
+}
+.btn-next:hover{background:var(--rose-dk);transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,123,132,.3)}
+
+/* Empty state */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px;font-weight:300}
+.empty-state span{font-size:28px;display:block;margin-bottom:10px;opacity:.5}
+
+/* Counter badge */
+.sel-counter{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--warm);border:1px solid var(--border);
+  border-radius:50px;padding:6px 14px;font-size:12px;color:var(--muted);
+  margin:0 auto 20px;
+}
+.sel-count{
+  background:var(--rose);color:white;border-radius:50%;
+  width:20px;height:20px;display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:500
+}
+.counter-row{text-align:center}
+
+/* Footer */
+.footer{text-align:center;padding:32px 0 0;font-size:11px;color:var(--muted);opacity:.6}
+</style>
+</head>
+<body>
+<div class="petal p1"></div>
+<div class="petal p2"></div>
+<div class="petal p3"></div>
+
+<div class="container">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">A free gift for you</div>
+    <h1>You Already Have<br><em>Everything It Takes</em></h1>
+    <p class="hero-sub">This guided map will help you discover the skills, strengths, and confidence you've been building your whole life — and show you exactly what they're worth.</p>
+    <div class="hero-divider"><span>✦</span></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress">
+    <div class="prog-step" onclick="goPhase(0)">
+      <div class="prog-dot active" id="dot0">1</div>
+      <div class="prog-label">Your life</div>
+    </div>
+    <div class="prog-line"></div>
+    <div class="prog-step" onclick="goPhase(1)">
+      <div class="prog-dot" id="dot1">2</div>
+      <div class="prog-label">Your strengths</div>
+    </div>
+    <div class="prog-line"></div>
+    <div class="prog-step" onclick="goPhase(2)">
+      <div class="prog-dot" id="dot2">3</div>
+      <div class="prog-label">Your confidence</div>
+    </div>
+    <div class="prog-line"></div>
+    <div class="prog-step" onclick="goPhase(3)">
+      <div class="prog-dot" id="dot3">4</div>
+      <div class="prog-label">What's next</div>
+    </div>
+  </div>
+
+  <!-- PHASE 1: EXPERIENCES -->
+  <div class="phase active" id="phase0">
+    <div class="section-head">
+      <h2>Map Your Experiences</h2>
+      <p>Select everything that applies — paid work, unpaid work, and life experiences. There are no wrong answers. Every box you check is evidence of who you are.</p>
+    </div>
+
+    <div class="cat-tabs">
+      <button class="cat-tab active" onclick="showCat('home',this)">Home &amp; Family</button>
+      <button class="cat-tab" onclick="showCat('food',this)">Food &amp; Hospitality</button>
+      <button class="cat-tab" onclick="showCat('office',this)">Office &amp; Admin</button>
+      <button class="cat-tab" onclick="showCat('retail',this)">Retail &amp; Service</button>
+      <button class="cat-tab" onclick="showCat('exec',this)">Leadership</button>
+      <button class="cat-tab" onclick="showCat('care',this)">Care &amp; Teaching</button>
+      <button class="cat-tab" onclick="showCat('life',this)">Life Experiences</button>
+    </div>
+
+    <div id="home" class="exp-section visible">
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'home1')"><span class="exp-check">✓</span><div class="exp-title">Stay-at-home parent or caregiver</div><div class="exp-examples">Full-time parenting, eldercare, caring for a family member</div></div>
+        <div class="exp-card" onclick="toggle(this,'home2')"><span class="exp-check">✓</span><div class="exp-title">Household manager</div><div class="exp-examples">Budgets, schedules, appointments, home projects, repairs</div></div>
+        <div class="exp-card" onclick="toggle(this,'home3')"><span class="exp-check">✓</span><div class="exp-title">Volunteer organizer</div><div class="exp-examples">School fundraisers, sports teams, faith groups, community events</div></div>
+        <div class="exp-card" onclick="toggle(this,'home4')"><span class="exp-check">✓</span><div class="exp-title">Supported others through hardship</div><div class="exp-examples">Crisis support, navigating medical or legal systems for family</div></div>
+      </div>
+    </div>
+
+    <div id="food" class="exp-section">
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'food1')"><span class="exp-check">✓</span><div class="exp-title">Catering or food prep (side or contract)</div><div class="exp-examples">Home catering, event food, meal prep services</div></div>
+        <div class="exp-card" onclick="toggle(this,'food2')"><span class="exp-check">✓</span><div class="exp-title">Restaurant, café, or fast food</div><div class="exp-examples">Server, host, line cook, barista, cashier</div></div>
+        <div class="exp-card" onclick="toggle(this,'food3')"><span class="exp-check">✓</span><div class="exp-title">Event or banquet service</div><div class="exp-examples">Weddings, corporate events, catering halls</div></div>
+        <div class="exp-card" onclick="toggle(this,'food4')"><span class="exp-check">✓</span><div class="exp-title">Baking, preserving, or food sales</div><div class="exp-examples">Farmers markets, cottage food, baked goods business</div></div>
+      </div>
+    </div>
+
+    <div id="office" class="exp-section">
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'off1')"><span class="exp-check">✓</span><div class="exp-title">Administrative or clerical work</div><div class="exp-examples">Data entry, scheduling, reception, office management</div></div>
+        <div class="exp-card" onclick="toggle(this,'off2')"><span class="exp-check">✓</span><div class="exp-title">Bookkeeping or financial admin</div><div class="exp-examples">Accounts, invoicing, payroll, expense tracking</div></div>
+        <div class="exp-card" onclick="toggle(this,'off3')"><span class="exp-check">✓</span><div class="exp-title">Customer service or communications</div><div class="exp-examples">Phone support, email, client relations, front desk</div></div>
+        <div class="exp-card" onclick="toggle(this,'off4')"><span class="exp-check">✓</span><div class="exp-title">Project coordination</div><div class="exp-examples">Managing timelines, teams, and deliverables</div></div>
+      </div>
+    </div>
+
+    <div id="retail" class="exp-section">
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'ret1')"><span class="exp-check">✓</span><div class="exp-title">Retail sales</div><div class="exp-examples">Clothing, grocery, specialty stores, boutiques</div></div>
+        <div class="exp-card" onclick="toggle(this,'ret2')"><span class="exp-check">✓</span><div class="exp-title">Personal or beauty services</div><div class="exp-examples">Hair, nails, esthetics, massage, styling</div></div>
+        <div class="exp-card" onclick="toggle(this,'ret3')"><span class="exp-check">✓</span><div class="exp-title">Delivery, logistics, or warehouse</div><div class="exp-examples">Gig delivery, stocking, inventory, shipping</div></div>
+        <div class="exp-card" onclick="toggle(this,'ret4')"><span class="exp-check">✓</span><div class="exp-title">Cashier or money handling</div><div class="exp-examples">POS systems, cash reconciliation, transaction accuracy</div></div>
+      </div>
+    </div>
+
+    <div id="exec" class="exp-section">
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'exec1')"><span class="exp-check">✓</span><div class="exp-title">Corporate or senior management</div><div class="exp-examples">Director, VP, C-suite, department head, regional manager</div></div>
+        <div class="exp-card" onclick="toggle(this,'exec2')"><span class="exp-check">✓</span><div class="exp-title">Team leadership or supervision</div><div class="exp-examples">Managing staff, hiring, training, performance reviews</div></div>
+        <div class="exp-card" onclick="toggle(this,'exec3')"><span class="exp-check">✓</span><div class="exp-title">Sales, marketing, or business development</div><div class="exp-examples">Pitching, client acquisition, campaigns, partnerships</div></div>
+        <div class="exp-card" onclick="toggle(this,'exec4')"><span class="exp-check">✓</span><div class="exp-title">Strategy or operations</div><div class="exp-examples">Process improvement, budgeting, scaling, vendors</div></div>
+      </div>
+    </div>
+
+    <div id="care" class="exp-section">
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'care1')"><span class="exp-check">✓</span><div class="exp-title">Healthcare or personal support work</div><div class="exp-examples">PSW, nursing aide, medical admin, home care</div></div>
+        <div class="exp-card" onclick="toggle(this,'care2')"><span class="exp-check">✓</span><div class="exp-title">Teaching, tutoring, or coaching</div><div class="exp-examples">Classroom, private lessons, sports, fitness instruction</div></div>
+        <div class="exp-card" onclick="toggle(this,'care3')"><span class="exp-check">✓</span><div class="exp-title">Community or social services</div><div class="exp-examples">Non-profit, outreach, settlement services, peer support</div></div>
+        <div class="exp-card" onclick="toggle(this,'care4')"><span class="exp-check">✓</span><div class="exp-title">Creative or craft work</div><div class="exp-examples">Sewing, art, photography, writing, music, handmade goods</div></div>
+      </div>
+    </div>
+
+    <div id="life" class="exp-section">
+      <div class="sublabel">Physical challenges &amp; achievement</div>
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'life1')"><span class="exp-check">✓</span><div class="exp-title">Trained for or completed a physical challenge</div><div class="exp-examples">Marathon, triathlon, mountain climb (Kilimanjaro!), cycling event, swim</div></div>
+        <div class="exp-card" onclick="toggle(this,'life2')"><span class="exp-check">✓</span><div class="exp-title">Competed in a sport or athletic pursuit</div><div class="exp-examples">Team sports, individual athletics, martial arts, dance, equestrian</div></div>
+        <div class="exp-card" onclick="toggle(this,'life3')"><span class="exp-check">✓</span><div class="exp-title">Major solo or adventurous travel</div><div class="exp-examples">Solo travel, backpacking, expedition, living or working abroad</div></div>
+      </div>
+      <div class="sublabel">Health &amp; resilience</div>
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'life4')"><span class="exp-check">✓</span><div class="exp-title">Navigated a serious health experience</div><div class="exp-examples">Your own illness, surgery, recovery, chronic condition</div></div>
+        <div class="exp-card" onclick="toggle(this,'life5')"><span class="exp-check">✓</span><div class="exp-title">Supported someone through serious illness</div><div class="exp-examples">Cancer, end-of-life care, long-term illness, disability</div></div>
+        <div class="exp-card" onclick="toggle(this,'life6')"><span class="exp-check">✓</span><div class="exp-title">Rebuilt after a major life disruption</div><div class="exp-examples">Divorce, job loss, financial crisis, bereavement, starting over</div></div>
+      </div>
+      <div class="sublabel">Personal growth &amp; learning</div>
+      <div class="exp-grid">
+        <div class="exp-card" onclick="toggle(this,'life7')"><span class="exp-check">✓</span><div class="exp-title">Pursued learning as an adult</div><div class="exp-examples">Returned to school, certification, self-directed learning</div></div>
+        <div class="exp-card" onclick="toggle(this,'life8')"><span class="exp-check">✓</span><div class="exp-title">Navigated a major system for someone else</div><div class="exp-examples">Immigration, legal, insurance, housing, government services</div></div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <div class="counter-row">
+        <div class="sel-counter"><div class="sel-count" id="cnt">0</div> experiences selected</div>
+      </div>
+      <button class="btn-next" onclick="goPhase(1)">See my strengths →</button>
+    </div>
+  </div>
+
+  <!-- PHASE 2: STRENGTHS -->
+  <div class="phase" id="phase1">
+    <div class="section-head">
+      <h2>Your Transferable Strengths</h2>
+      <p>Every experience you selected has been building real, professional-grade skills. Here is what you actually have.</p>
+    </div>
+    <div id="strengths-list">
+      <div class="empty-state"><span>✦</span>Go back and select your experiences first</div>
+    </div>
+    <div class="nav-row">
+      <button class="btn-back" onclick="goPhase(0)">← Back</button>
+      <button class="btn-next" onclick="goPhase(2)">Build my confidence →</button>
+    </div>
+  </div>
+
+  <!-- PHASE 3: CONFIDENCE BUILDER -->
+  <div class="phase" id="phase2">
+    <div class="section-head">
+      <h2>Your Confidence Builder</h2>
+      <p>The biggest barrier to your next chapter isn't skills — it's believing those skills count. Let's change that.</p>
+    </div>
+
+    <div class="conf-block">
+      <h3><span class="conf-icon" style="background:var(--rose-lt);font-size:18px">✦</span>What you probably underestimate about yourself</h3>
+      <p class="conf-intro">Most women describe their own experience with language that makes it smaller than it is. Here is the reframe.</p>
+      <ul class="reframe-list">
+        <li><span class="shrink">"I just stayed home"</span><span class="expand">You managed a household, raised humans, handled logistics, finances, and emotional labour — often simultaneously. That is operations work.</span></li>
+        <li><span class="shrink">"I only did retail"</span><span class="expand">You handled real money, managed difficult customers, hit targets, and kept your composure under pressure — every single shift.</span></li>
+        <li><span class="shrink">"I was just an admin"</span><span class="expand">You kept an organization running. Without you, nothing worked. Businesses pay consultants thousands to build what you did daily.</span></li>
+        <li><span class="shrink">"I haven't worked in years"</span><span class="expand">You have been working. You just weren't paid for it. The skills didn't expire — they compounded.</span></li>
+        <li><span class="shrink">"I don't have a degree"</span><span class="expand">Many of the most successful businesses are built by people who learned by doing. Your experience is applied knowledge — the most durable kind.</span></li>
+        <li><span class="shrink">"I'm too old to start"</span><span class="expand">You have something most 25-year-olds don't: credibility, life context, patience, and the ability to read people. Those are competitive advantages.</span></li>
+        <li><span class="shrink">"I only did side jobs"</span><span class="expand">You ran a business. You had clients, produced a product, managed income, and made it work around everything else. That is entrepreneurship.</span></li>
+      </ul>
+    </div>
+
+    <div class="conf-block">
+      <h3><span class="conf-icon" style="background:var(--sage-lt);font-size:18px">◈</span>What hard challenges actually prove about you</h3>
+      <p class="conf-intro">These experiences aren't separate from your professional story — they are evidence of exactly who you are.</p>
+      <ul class="reframe-list">
+        <li><span class="shrink">Trained for a challenge</span><span class="expand">You set a long-term goal, built a plan, managed your body and mind through discomfort, and followed through. That is exactly what building a business requires.</span></li>
+        <li><span class="shrink">Completed something hard</span><span class="expand">You know what it feels like to want to quit and keep going anyway. Most people never learn that about themselves. You have proof.</span></li>
+        <li><span class="shrink">Navigated serious illness</span><span class="expand">You researched, advocated, made high-stakes decisions under fear, and kept functioning. That is crisis management and self-advocacy at their most personal.</span></li>
+        <li><span class="shrink">Cared during illness</span><span class="expand">You coordinated care, communicated across complex systems, and held someone together. That is case management, health navigation, and emotional intelligence — all at once.</span></li>
+        <li><span class="shrink">Rebuilt after loss</span><span class="expand">You reinvented yourself once already. Starting something new isn't a leap into the unknown for you — it's a skill you've already used and proven.</span></li>
+        <li><span class="shrink">Traveled or lived abroad</span><span class="expand">You navigated the unfamiliar, solved problems without a safety net, and proved you can figure things out. Adaptability is one of the rarest business skills.</span></li>
+      </ul>
+    </div>
+
+    <div class="conf-block">
+      <h3><span class="conf-icon" style="background:var(--gold-lt);font-size:18px">◇</span>The advantages of your later chapters</h3>
+      <p class="conf-intro">If you're in your 40s, 50s, 60s or beyond — these aren't liabilities. They are assets younger women simply don't have yet.</p>
+      <div class="asset-pills">
+        <span class="asset-pill">Decades of pattern recognition</span>
+        <span class="asset-pill">Knowing what actually matters</span>
+        <span class="asset-pill">A network built over time</span>
+        <span class="asset-pill">Hard-won credibility</span>
+        <span class="asset-pill">Emotional regulation</span>
+        <span class="asset-pill">No longer needing everyone's approval</span>
+        <span class="asset-pill">Clear personal values</span>
+        <span class="asset-pill">Clients trust experience</span>
+        <span class="asset-pill">You know who you are</span>
+      </div>
+      <div class="pull-quote">
+        The women who build the most sustainable businesses are those who stopped trying to compete with who they used to be — and started leveraging everything they've already become.
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goPhase(1)">← Back</button>
+      <button class="btn-next" onclick="goPhase(3)">My evidence file →</button>
+    </div>
+  </div>
+
+  <!-- PHASE 4: REFLECTION + CTA -->
+  <div class="phase" id="phase3">
+    <div class="section-head">
+      <h2>Your Evidence File</h2>
+      <p>These questions are yours to answer — in writing, with a coach, or quietly to yourself. Your answers are your proof of readiness.</p>
+    </div>
+
+    <div class="reflect-card">
+      <div class="reflect-q">When did something that felt impossible become possible for you?</div>
+      <div class="reflect-a">A moment — physical, personal, or professional — where you surprised yourself. What did you actually do to get there?</div>
+      <textarea class="reflect-input" placeholder="Write your answer here…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">What do people consistently come to you for?</div>
+      <div class="reflect-a">Not what you think you're good at — what do others actually seek you out for? Advice, help, your hands, your knowledge?</div>
+      <textarea class="reflect-input" placeholder="Write your answer here…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">What have you figured out that most people haven't?</div>
+      <div class="reflect-a">This might be practical — how to navigate a system, build a thing, stay calm — or simply how to keep going when things fall apart.</div>
+      <textarea class="reflect-input" placeholder="Write your answer here…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">If a younger version of you could see where you are now, what would she be impressed by?</div>
+      <div class="reflect-a">Not what you haven't done — what you have. The things you've survived, built, learned, and become.</div>
+      <textarea class="reflect-input" placeholder="Write your answer here…" rows="3"></textarea>
+    </div>
+    <div class="reflect-card">
+      <div class="reflect-q">What would you do if you knew you wouldn't fail?</div>
+      <div class="reflect-a">Don't edit the answer. Write the first thing that comes to mind. That impulse is information.</div>
+      <textarea class="reflect-input" placeholder="Write your answer here…" rows="3"></textarea>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <div class="cta-eyebrow">You're ready. Here's your next step.</div>
+      <h2>Now Let's <em>Build Something</em><br>With All of That</h2>
+      <p>You've just mapped a lifetime of skills, strengths, and proof. The Build a Business program takes exactly this foundation and turns it into a business that is yours — built around your life, your values, and what you're actually good at.</p>
+      <a href="#" class="cta-btn">Yes — Tell Me About the Program →</a>
+      <div class="cta-fine">No pressure. No spam. Just a conversation about what's possible.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="goPhase(2)">← Back</button>
+    </div>
+  </div>
+
+  <div class="footer">Made with intention · Your information stays private · © 2025</div>
+
+</div>
+
+<script>
+const selected = new Set();
+const colors = ['rose','sage','gold','rose','sage','gold','rose','sage'];
+let colorIdx = 0;
+
+const skillMap = {
+  home1:{label:"People Management",desc:"Managing a household with children means constant negotiation, scheduling, conflict resolution, and meeting the needs of multiple different people simultaneously — often with no budget and no days off.",roles:["Office manager","HR coordinator","Team lead","Event planner","Community manager"]},
+  home2:{label:"Project & Budget Management",desc:"Running a household on a budget is operations work: tracking expenses, planning ahead, finding creative solutions, and never letting things fall through the cracks.",roles:["Operations coordinator","Bookkeeper","Virtual assistant","Property manager","Project manager"]},
+  home3:{label:"Event Planning & Logistics",desc:"Organizing volunteers, coordinating logistics, managing vendors, motivating people who aren't being paid — that is fundraising and event management experience.",roles:["Event coordinator","Non-profit admin","Marketing coordinator","Community outreach"]},
+  home4:{label:"Crisis Navigation & Advocacy",desc:"Supporting someone through hardship develops empathy, research skills, and the ability to hold space while solving high-stakes problems under real pressure.",roles:["Patient navigator","Life coach","Insurance specialist","Advocacy coordinator","Social worker"]},
+  food1:{label:"Production & Quality Management",desc:"Catering requires planning quantities, managing timelines, keeping safety and presentation high, and adapting to last-minute changes. That is production management.",roles:["Catering business owner","Kitchen manager","Food product developer","Meal prep service","Corporate caterer"]},
+  food2:{label:"High-Pressure Customer Service",desc:"Working a busy service means reading people instantly, managing complaints gracefully, multitasking across many needs, and keeping calm under real pressure — every shift.",roles:["Customer experience manager","Hospitality trainer","Front-of-house manager","Client relations"]},
+  food3:{label:"Premium Client Experience",desc:"Event and banquet service demands attention to detail, professional polish, and the ability to anticipate needs before they're expressed — skills prized in luxury and corporate service.",roles:["Event coordinator","Corporate hospitality","Wedding planner","Private chef","Luxury brand service"]},
+  food4:{label:"Entrepreneurial Product Development",desc:"Creating a food product, pricing it, selling it, and responding to customers is a complete small business cycle — proof you already know how to run a business.",roles:["Food entrepreneur","Farmers market vendor","Cottage food business","Online food brand"]},
+  off1:{label:"Organizational Systems",desc:"Admin work builds mastery of systems and the invisible infrastructure that keeps organizations running. Most businesses desperately need this skill.",roles:["Virtual assistant","Executive assistant","Office manager","Operations coordinator","Freelance admin"]},
+  off2:{label:"Financial Literacy & Accuracy",desc:"Handling real money and real accounts builds financial confidence most people only pretend to have. This translates directly to business ownership.",roles:["Bookkeeper","Accounting technician","Financial admin","Payroll specialist","Small business consultant"]},
+  off3:{label:"Communication & Relationships",desc:"Every business needs someone who writes clearly, handles difficult conversations with grace, and makes clients feel genuinely cared for. That is a rare and monetizable skill.",roles:["Client services","Communications coordinator","Sales representative","CRM specialist","Community manager"]},
+  off4:{label:"Project Coordination",desc:"Keeping projects on track, people accountable, and deliverables moving is a skill set entire industries are built around — and it works in virtually any field.",roles:["Project coordinator","Operations manager","Product manager","Freelance PM","Agency account manager"]},
+  ret1:{label:"Sales & Influence",desc:"Retail teaches you to read what people actually want, close without being pushy, and handle rejection — the foundation of any sales career or business.",roles:["Sales consultant","B2B sales rep","Real estate agent","Business development","Retail buyer"]},
+  ret2:{label:"Service Expertise & Client Loyalty",desc:"Personal service work develops deep client relationships, technical expertise, and the ability to build a loyal following — the exact foundation for a solo business.",roles:["Independent beauty pro","Wellness entrepreneur","Personal stylist","Brand consultant","Service business owner"]},
+  ret3:{label:"Logistics & Reliability",desc:"Getting things where they need to go, accurately and on time — that is supply chain and operations experience that every product-based business needs.",roles:["Logistics coordinator","Inventory manager","Fulfillment manager","E-commerce operations"]},
+  ret4:{label:"Accuracy & Accountability",desc:"Managing cash under time pressure with end-of-shift accountability builds a precision mindset that transfers directly to financial and operations roles.",roles:["Bookkeeper","Accounts admin","Payroll clerk","Non-profit treasurer","Bank teller"]},
+  exec1:{label:"Strategic Thinking & Leadership",desc:"Corporate experience means you can see systems, spot inefficiencies, navigate politics, and move organizations. That translates directly to consulting, fractional leadership, or your own venture.",roles:["Business consultant","Fractional COO/CMO","Executive coach","Board advisor","Startup founder"]},
+  exec2:{label:"People Development & Culture",desc:"Building teams, developing talent, and creating environments where people do their best work is one of the highest-value skills in business — always in demand.",roles:["HR consultant","Leadership coach","Training specialist","Culture consultant","Talent acquisition"]},
+  exec3:{label:"Revenue Generation & Growth",desc:"If you have ever sold, marketed, or grown a client base, you have one of the most monetizable skill sets that exists. Every business needs more customers.",roles:["Marketing consultant","Sales strategist","Growth advisor","Brand consultant","Agency founder"]},
+  exec4:{label:"Operations & Systems Design",desc:"Understanding how organizations work — and how to make them work better — is the basis for consulting, fractional COO work, and confident business ownership.",roles:["Operations consultant","Process improvement","Fractional COO","Systems consultant","Business analyst"]},
+  care1:{label:"Clinical Empathy & Trust",desc:"Working in health or personal support means people trusted you with their most vulnerable moments — building a depth of communication no course can teach.",roles:["Health coach","Patient advocate","Wellness entrepreneur","Medical admin","Community health worker"]},
+  care2:{label:"Instruction & Knowledge Transfer",desc:"If you can teach — break something down, meet people where they are, and actually get results — that skill works in training, consulting, content, and entrepreneurship.",roles:["Online educator","Corporate trainer","Curriculum designer","Workshop facilitator","Tutor business owner"]},
+  care3:{label:"Community Building & Outreach",desc:"Building trust across difference and moving communities to action is a rare competency that non-profits and social enterprises pay generously for.",roles:["Community manager","Non-profit director","Outreach coordinator","Social entrepreneur","Program developer"]},
+  care4:{label:"Creative & Visual Communication",desc:"Creative skills are the differentiator in a content-saturated world. Original, skilled creative work has a real and growing market.",roles:["Creative entrepreneur","Content creator","Handmade goods seller","Photographer","Creative consultant"]},
+  life1:{label:"Goal-Setting & Follow-Through",desc:"Training for a physical challenge means building a long-term plan, managing setbacks, regulating yourself through discomfort, and completing what you started. That is exactly what building anything requires.",roles:["Personal trainer","Wellness coach","Athletics instructor","Program manager","Business founder"]},
+  life2:{label:"Competitive Resilience",desc:"Competing means you know how to prepare under pressure, lose without quitting, and keep raising your standard. That mindset translates to every field.",roles:["Sports coach","Performance consultant","Leadership trainer","Motivational speaker","Team facilitator"]},
+  life3:{label:"Adaptability & Resourcefulness",desc:"Navigating the unfamiliar alone — different cultures, systems, and languages — proves you can figure things out without a roadmap. That is the core entrepreneurial skill.",roles:["Travel consultant","Cross-cultural trainer","International business","Relocation specialist","Remote work consultant"]},
+  life4:{label:"Self-Advocacy & Health Navigation",desc:"Navigating your own health experience — researching, advocating with providers, making high-stakes decisions under fear — is crisis management and systems navigation at their most personal.",roles:["Health coach","Patient advocate","Wellness entrepreneur","Peer support worker","Health content creator"]},
+  life5:{label:"Caregiving & System Navigation",desc:"Coordinating care for someone seriously ill means managing providers, communicating across complex systems, and making decisions for someone who can't. That is case management experience.",roles:["Patient navigator","Social worker","Care coordinator","Non-profit program manager","Health advocate"]},
+  life6:{label:"Reinvention & Starting Over",desc:"You've rebuilt before. That means you already know how to let go of what isn't working, find your footing, and create something new. That is an extraordinary advantage.",roles:["Life coach","Career transition consultant","Motivational speaker","Community support worker","Counsellor"]},
+  life7:{label:"Lifelong Learning & Initiative",desc:"Returning to learning as an adult — while managing life — takes initiative, humility, and self-management. Employers and clients recognize this as a signal of real character.",roles:["Instructor","E-learning developer","Career coach","Specialist consultant","Industry credential holder"]},
+  life8:{label:"Systems Navigation & Advocacy",desc:"Navigating immigration, legal, housing, or government systems for someone else means you can decode complexity, translate bureaucracy, and get results for people who need help.",roles:["Settlement worker","Immigration consultant","Legal admin","Advocacy coordinator","Non-profit navigator"]},
+};
+
+function toggle(card, id) {
+  card.classList.toggle('selected');
+  selected.has(id) ? selected.delete(id) : selected.add(id);
+  document.getElementById('cnt').textContent = selected.size;
+}
+
+function showCat(id, btn) {
+  document.querySelectorAll('.exp-section').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('visible');
+  btn.classList.add('active');
+}
+
+const palette = ['rose','sage','gold'];
+function goPhase(n) {
+  document.querySelectorAll('.phase').forEach((p,i) => p.classList.toggle('active', i===n));
+  document.querySelectorAll('.prog-dot').forEach((d,i) => {
+    d.classList.toggle('active', i===n);
+    d.classList.toggle('done', i<n);
+  });
+  if(n===1) renderStrengths();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderStrengths() {
+  const list = document.getElementById('strengths-list');
+  if(selected.size===0){
+    list.innerHTML='<div class="empty-state"><span>✦</span>Go back and select your experiences to reveal your strengths</div>';
+    return;
+  }
+  list.innerHTML='';
+  let ci=0;
+  selected.forEach(id => {
+    const s = skillMap[id];
+    if(!s) return;
+    const color = palette[ci % 3];
+    ci++;
+    const d = document.createElement('div');
+    d.className = `str-card ${color==='sage'?'sage':color==='gold'?'gold':''}`;
+    d.innerHTML = `<div class="str-label">${s.label} <span class="str-badge">${color==='rose'?'Your strength':color==='sage'?'Proven skill':'Real experience'}</span></div>
+    <div class="str-desc">${s.desc}</div>
+    <div class="str-roles">${s.roles.map(r=>`<span class="str-role">${r}</span>`).join('')}</div>`;
+    list.appendChild(d);
+  });
+}
+</script>
+</body>
+</html>
