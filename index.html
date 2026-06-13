@@ -495,28 +495,18 @@ body::before{
     <div class="conf-block">
       <h3><span class="conf-icon" style="background:var(--rose-lt);font-size:18px">✦</span>What you probably underestimate about yourself</h3>
       <p class="conf-intro">Most women describe their own experience with language that makes it smaller than it is. Here is the reframe.</p>
-      <ul class="reframe-list">
-        <li><span class="shrink">"I just stayed home"</span><span class="expand">You managed a household, raised humans, handled logistics, finances, and emotional labour — often simultaneously. That is operations work.</span></li>
-        <li><span class="shrink">"I only did retail"</span><span class="expand">You handled real money, managed difficult customers, hit targets, and kept your composure under pressure — every single shift.</span></li>
-        <li><span class="shrink">"I was just an admin"</span><span class="expand">You kept an organization running. Without you, nothing worked. Businesses pay consultants thousands to build what you did daily.</span></li>
-        <li><span class="shrink">"I haven't worked in years"</span><span class="expand">You have been working. You just weren't paid for it. The skills didn't expire — they compounded.</span></li>
-        <li><span class="shrink">"I don't have a degree"</span><span class="expand">Many of the most successful businesses are built by people who learned by doing. Your experience is applied knowledge — the most durable kind.</span></li>
-        <li><span class="shrink">"I'm too old to start"</span><span class="expand">You have something most 25-year-olds don't: credibility, life context, patience, and the ability to read people. Those are competitive advantages.</span></li>
-        <li><span class="shrink">"I only did side jobs"</span><span class="expand">You ran a business. You had clients, produced a product, managed income, and made it work around everything else. That is entrepreneurship.</span></li>
+      <ul class="reframe-list" id="dynamic-underestimates">
+        <!-- Populated dynamically based on selections -->
       </ul>
     </div>
 
     <div class="conf-block">
-      <h3><span class="conf-icon" style="background:var(--sage-lt);font-size:18px">◈</span>What hard challenges actually prove about you</h3>
-      <p class="conf-intro">These experiences aren't separate from your professional story — they are evidence of exactly who you are.</p>
-      <ul class="reframe-list">
-        <li><span class="shrink">Trained for a challenge</span><span class="expand">You set a long-term goal, built a plan, managed your body and mind through discomfort, and followed through. That is exactly what building a business requires.</span></li>
-        <li><span class="shrink">Completed something hard</span><span class="expand">You know what it feels like to want to quit and keep going anyway. Most people never learn that about themselves. You have proof.</span></li>
-        <li><span class="shrink">Navigated serious illness</span><span class="expand">You researched, advocated, made high-stakes decisions under fear, and kept functioning. That is crisis management and self-advocacy at their most personal.</span></li>
-        <li><span class="shrink">Cared during illness</span><span class="expand">You coordinated care, communicated across complex systems, and held someone together. That is case management, health navigation, and emotional intelligence — all at once.</span></li>
-        <li><span class="shrink">Rebuilt after loss</span><span class="expand">You reinvented yourself once already. Starting something new isn't a leap into the unknown for you — it's a skill you've already used and proven.</span></li>
-        <li><span class="shrink">Traveled or lived abroad</span><span class="expand">You navigated the unfamiliar, solved problems without a safety net, and proved you can figure things out. Adaptability is one of the rarest business skills.</span></li>
+      <h3><span class="conf-icon" style="background:var(--sage-lt);font-size:18px">◈</span>What your hard experiences actually prove about you</h3>
+      <p class="conf-intro">Based on what you selected — these are the experiences that are evidence of exactly who you are.</p>
+      <ul class="reframe-list" id="dynamic-reframes">
+        <!-- Populated dynamically based on selections -->
       </ul>
+      <p class="conf-intro" id="no-life-experiences" style="display:none;font-style:italic">Select some Life Experiences in Phase 1 to see your personal reframes here.</p>
     </div>
 
     <div class="conf-block">
@@ -649,6 +639,86 @@ function showCat(id, btn) {
 }
 
 const palette = ['rose','sage','gold'];
+// ── REFRAME MAPS ──
+const underestimateMap = {
+  home1: {shrink: '"I just stayed home"', expand: 'You managed a household, raised humans, handled logistics, finances, and emotional labour — often simultaneously. That is operations work.'},
+  home2: {shrink: '"I was just managing the house"', expand: 'Running a household on a budget is operations and project management. Businesses pay consultants thousands to build what you did daily.'},
+  home3: {shrink: '"I only volunteered"', expand: 'You organized people, managed logistics, and motivated unpaid teams. That is event management and community leadership.'},
+  home4: {shrink: '"I was just helping family"', expand: 'Supporting someone through hardship builds crisis management, advocacy, and emotional intelligence — skills no course can teach.'},
+  food1: {shrink: '"I only did catering on the side"', expand: 'You ran a business. You had clients, produced a product, managed income, and made it work. That is entrepreneurship.'},
+  food2: {shrink: '"I just worked in restaurants"', expand: 'You handled real customers under real pressure every shift. That builds resilience and composure most professionals never develop.'},
+  food3: {shrink: '"I only did event work"', expand: 'Event service demands polish, precision, and anticipating needs — skills prized in luxury and corporate environments.'},
+  food4: {shrink: '"I just baked and sold things"', expand: 'You created a product, priced it, sold it, and managed customers. That is a complete business cycle.'},
+  off1: {shrink: '"I was just an admin"', expand: 'You kept an organization running. Without you, nothing worked. Businesses pay consultants thousands to build what you did daily.'},
+  off2: {shrink: '"I only did bookkeeping"', expand: 'Handling real money builds financial confidence most people only pretend to have. That translates directly to business ownership.'},
+  off3: {shrink: '"I just answered phones and emails"', expand: 'Every business needs someone who communicates clearly and makes clients feel genuinely cared for. That is rare and monetizable.'},
+  off4: {shrink: '"I just coordinated projects"', expand: 'Keeping projects on track and people accountable is a skill set entire industries are built around.'},
+  ret1: {shrink: '"I only did retail"', expand: 'You handled real money, managed difficult customers, hit targets, and kept your composure under pressure — every single shift.'},
+  ret2: {shrink: '"I just did beauty work"', expand: 'Personal service work builds deep client loyalty — exactly the foundation for a solo business.'},
+  ret3: {shrink: '"I only did delivery work"', expand: 'Getting things where they need to go accurately and on time is logistics experience every product business needs.'},
+  ret4: {shrink: '"I just ran a cash register"', expand: 'Managing money under pressure with accountability builds a precision mindset that transfers to financial and business roles.'},
+  exec1: {shrink: '"I just worked in corporate"', expand: 'You can see systems, spot inefficiencies, and move organizations — skills that translate directly to consulting or your own venture.'},
+  exec2: {shrink: '"I just managed people"', expand: 'Building teams and creating environments where people thrive is one of the highest-value skills in business — always in demand.'},
+  exec3: {shrink: '"I just did sales and marketing"', expand: 'If you have ever sold or grown a client base, you have one of the most monetizable skill sets that exists.'},
+  exec4: {shrink: '"I just did operations"', expand: 'Understanding how organizations work and how to improve them is the basis for consulting and confident business ownership.'},
+  care1: {shrink: '"I just worked in healthcare"', expand: 'People trusted you with their most vulnerable moments. That builds communication depth no course can teach.'},
+  care2: {shrink: '"I just taught or tutored"', expand: 'If you can break something down and get results, that skill works in training, consulting, and entrepreneurship.'},
+  care3: {shrink: '"I just did community work"', expand: 'Building trust and moving communities to action is a rare competency that organizations pay generously for.'},
+  care4: {shrink: '"I only did creative things"', expand: 'Creative skills are increasingly the differentiator in a content-saturated world. Original skilled work has a real market.'},
+};
+
+const reframeMap = {
+  life1: {shrink: 'Trained for or completed a physical challenge', expand: 'You set a long-term goal, built a plan, managed discomfort, and followed through. That is exactly what building a business requires.'},
+  life2: {shrink: 'Competed in a sport or athletic pursuit', expand: 'You know how to prepare under pressure, lose without quitting, and keep raising your standard. That mindset transfers everywhere.'},
+  life3: {shrink: 'Traveled solo or lived abroad', expand: 'You navigated the unfamiliar without a safety net and proved you can figure things out. Adaptability is one of the rarest business skills.'},
+  life4: {shrink: 'Navigated a serious health experience', expand: 'You researched, advocated, and made high-stakes decisions under fear. That is crisis management and self-advocacy at their most personal.'},
+  life5: {shrink: 'Supported someone through serious illness', expand: 'You coordinated care, communicated across complex systems, and held someone together. That is case management and emotional intelligence — all at once.'},
+  life6: {shrink: 'Rebuilt after a major life disruption', expand: 'You reinvented yourself once already. Starting something new isn\'t a leap into the unknown — it\'s a skill you\'ve already proven.'},
+  life7: {shrink: 'Returned to learning as an adult', expand: 'Taking initiative to learn while managing life takes humility and self-management — signals of real character that clients and employers recognize.'},
+  life8: {shrink: 'Navigated a major system for someone else', expand: 'Decoding complexity and getting results for people who need help is exactly what advocacy and community navigation is built on.'},
+  home4: {shrink: 'Supported others through hardship', expand: 'Crisis support and navigating systems for others builds empathy and the ability to hold space while solving high-stakes problems.'},
+};
+
+function updateConfidenceBuilder() {
+  // Dynamic underestimates — based on what was selected
+  const underList = document.getElementById('dynamic-underestimates');
+  if (underList) {
+    underList.innerHTML = '';
+    selected.forEach(id => {
+      if (underestimateMap[id]) {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="shrink">${underestimateMap[id].shrink}</span><span class="expand">${underestimateMap[id].expand}</span>`;
+        underList.appendChild(li);
+      }
+    });
+    // Always add these two universal reframes
+    [{shrink: '"I\'m too old to start"', expand: 'You have something most 25-year-olds don\'t: credibility, life context, patience, and the ability to read people. Those are competitive advantages.'},
+     {shrink: '"I haven\'t worked in years"', expand: 'You have been working. You just weren\'t paid for it. The skills didn\'t expire — they compounded.'}
+    ].forEach(u => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="shrink">${u.shrink}</span><span class="expand">${u.expand}</span>`;
+      underList.appendChild(li);
+    });
+  }
+
+  // Dynamic hard challenges — only from life experiences selected
+  const reframeList = document.getElementById('dynamic-reframes');
+  const noExp = document.getElementById('no-life-experiences');
+  if (reframeList) {
+    reframeList.innerHTML = '';
+    let count = 0;
+    selected.forEach(id => {
+      if (reframeMap[id]) {
+        const li = document.createElement('li');
+        li.innerHTML = `<span class="shrink">${reframeMap[id].shrink}</span><span class="expand">${reframeMap[id].expand}</span>`;
+        reframeList.appendChild(li);
+        count++;
+      }
+    });
+    if (noExp) noExp.style.display = count === 0 ? 'block' : 'none';
+  }
+}
+
 function goPhase(n) {
   document.querySelectorAll('.phase').forEach((p,i) => p.classList.toggle('active', i===n));
   document.querySelectorAll('.prog-dot').forEach((d,i) => {
@@ -656,6 +726,7 @@ function goPhase(n) {
     d.classList.toggle('done', i<n);
   });
   if(n===1) renderStrengths();
+  if(n===2) updateConfidenceBuilder();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
