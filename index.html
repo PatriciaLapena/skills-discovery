@@ -590,6 +590,28 @@ const selected = new Set();
 const colors = ['rose','sage','gold','rose','sage','gold','rose','sage'];
 let colorIdx = 0;
 
+// ── Skills Discovery submission tracking ──
+const urlParams = new URLSearchParams(window.location.search);
+const userEmail = urlParams.get('email') || '';
+let alreadySubmitted = false;
+const SKILLS_DISCOVERY_ENDPOINT = 'https://hooks.zapier.com/hooks/catch/24383948/4dvumfm/';
+
+function submitSkillsDiscovery() {
+  if (alreadySubmitted || selected.size === 0 || !userEmail) return;
+  alreadySubmitted = true;
+  const labels = Array.from(selected).map(id => skillMap[id] ? skillMap[id].label : id).join(', ');
+  const params = new URLSearchParams();
+  params.append('email', userEmail);
+  params.append('selected_experiences', labels);
+  params.append('experience_count', String(selected.size));
+  params.append('submitted_at', new Date().toISOString());
+  fetch(SKILLS_DISCOVERY_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  }).catch(() => {});
+}
+
 const skillMap = {
   home1:{label:"People Management",desc:"Managing a household with children means constant negotiation, scheduling, conflict resolution, and meeting the needs of multiple different people simultaneously — often with no budget and no days off.",roles:["Office manager","HR coordinator","Team lead","Event planner","Community manager"]},
   home2:{label:"Project & Budget Management",desc:"Running a household on a budget is operations work: tracking expenses, planning ahead, finding creative solutions, and never letting things fall through the cracks.",roles:["Operations coordinator","Bookkeeper","Virtual assistant","Property manager","Project manager"]},
@@ -725,7 +747,7 @@ function goPhase(n) {
     d.classList.toggle('active', i===n);
     d.classList.toggle('done', i<n);
   });
-  if(n===1) renderStrengths();
+  if(n===1) { renderStrengths(); submitSkillsDiscovery(); }
   if(n===2) updateConfidenceBuilder();
   window.scrollTo({top:0,behavior:'smooth'});
 }
