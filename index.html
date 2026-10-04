@@ -128,6 +128,16 @@ body::before{
 }
 .cat-tab:hover{border-color:var(--rose);color:var(--rose)}
 .cat-tab.active{background:var(--rose);border-color:var(--rose);color:white}
+.cat-tab.visited:not(.active){border-color:var(--sage);color:var(--sage)}
+.cat-tab.visited:not(.active)::before{content:'✓ '}
+.cat-tab.locked{opacity:.45;cursor:default}
+.cat-tab.locked:hover{border-color:var(--border);color:var(--muted)}
+.cat-step{text-align:center;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:-14px 0 20px;font-weight:500}
+.cat-step strong{color:var(--rose);font-weight:500}
+.cat-hint{text-align:center;font-size:12px;color:var(--muted);margin-top:14px;font-weight:300;font-style:italic}
+.nav-row .btn-back[hidden],.nav-row .btn-next[hidden]{display:none}
+.nav-row .btn-back,.nav-row .btn-next{white-space:nowrap}
+@media(max-width:560px){.nav-row{flex-wrap:wrap;justify-content:center}.nav-row .counter-row{order:-1;width:100%}}
 
 /* Experience grid */
 .exp-section{display:none}.exp-section.visible{display:block}
@@ -379,14 +389,15 @@ body::before{
     </div>
 
     <div class="cat-tabs">
-      <button class="cat-tab active" onclick="showCat('home',this)">Home &amp; Family</button>
-      <button class="cat-tab" onclick="showCat('food',this)">Food &amp; Hospitality</button>
-      <button class="cat-tab" onclick="showCat('office',this)">Office &amp; Admin</button>
-      <button class="cat-tab" onclick="showCat('retail',this)">Retail &amp; Service</button>
-      <button class="cat-tab" onclick="showCat('exec',this)">Leadership</button>
-      <button class="cat-tab" onclick="showCat('care',this)">Care &amp; Teaching</button>
-      <button class="cat-tab" onclick="showCat('life',this)">Life Experiences</button>
+      <button class="cat-tab active visited" data-cat="home" onclick="showCat('home')">Home &amp; Family</button>
+      <button class="cat-tab locked" data-cat="food" onclick="showCat('food')">Food &amp; Hospitality</button>
+      <button class="cat-tab locked" data-cat="office" onclick="showCat('office')">Office &amp; Admin</button>
+      <button class="cat-tab locked" data-cat="retail" onclick="showCat('retail')">Retail &amp; Service</button>
+      <button class="cat-tab locked" data-cat="exec" onclick="showCat('exec')">Leadership</button>
+      <button class="cat-tab locked" data-cat="care" onclick="showCat('care')">Care &amp; Teaching</button>
+      <button class="cat-tab locked" data-cat="life" onclick="showCat('life')">Life Experiences</button>
     </div>
+    <div class="cat-step" id="cat-step">Category <strong>1</strong> of 7</div>
 
     <div id="home" class="exp-section visible">
       <div class="exp-grid">
@@ -462,11 +473,15 @@ body::before{
       </div>
     </div>
 
+    <div class="cat-hint" id="cat-hint">Select any that apply, or none — then continue to the next category.</div>
+
     <div class="nav-row">
+      <button class="btn-back" id="cat-back" onclick="stepCat(-1)" hidden>← Back</button>
       <div class="counter-row">
         <div class="sel-counter"><div class="sel-count" id="cnt">0</div> experiences selected</div>
       </div>
-      <button class="btn-next" onclick="goPhase(1)">See my strengths →</button>
+      <button class="btn-next" id="cat-next" onclick="stepCat(1)">Next: Food &amp; Hospitality →</button>
+      <button class="btn-next" id="see-strengths" onclick="goPhase(1)" hidden>See my strengths →</button>
     </div>
   </div>
 
@@ -653,11 +668,42 @@ function toggle(card, id) {
   document.getElementById('cnt').textContent = selected.size;
 }
 
-function showCat(id, btn) {
-  document.querySelectorAll('.exp-section').forEach(s => s.classList.remove('visible'));
-  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('visible');
-  btn.classList.add('active');
+// ── CATEGORY STEPPER ──
+// Walks through each category in order; "See my strengths" only appears on the last one.
+const catOrder = ['home','food','office','retail','exec','care','life'];
+let catIndex = 0;
+let catReached = 0; // furthest category the person has opened
+
+function showCat(id) {
+  const idx = catOrder.indexOf(id);
+  if (idx < 0 || idx > catReached) return; // can't skip ahead to categories not yet reached
+  catIndex = idx;
+  document.querySelectorAll('.exp-section').forEach(s => s.classList.toggle('visible', s.id === id));
+  document.querySelectorAll('.cat-tab').forEach(t => {
+    const tIdx = catOrder.indexOf(t.dataset.cat);
+    t.classList.toggle('active', tIdx === idx);
+    t.classList.toggle('visited', tIdx <= catReached);
+    t.classList.toggle('locked', tIdx > catReached);
+  });
+  const last = idx === catOrder.length - 1;
+  document.getElementById('cat-step').innerHTML = 'Category <strong>' + (idx + 1) + '</strong> of ' + catOrder.length;
+  document.getElementById('cat-back').hidden = idx === 0;
+  document.getElementById('cat-next').hidden = last;
+  document.getElementById('see-strengths').hidden = !last;
+  document.getElementById('cat-hint').textContent = last
+    ? "Last one! When you're done, see what all of this adds up to."
+    : 'Select any that apply, or none — then continue to the next category.';
+  if (!last) {
+    const nextTab = document.querySelector('.cat-tab[data-cat="' + catOrder[idx + 1] + '"]');
+    document.getElementById('cat-next').textContent = 'Next: ' + nextTab.textContent.replace(/^✓\s*/, '') + ' →';
+  }
+}
+
+function stepCat(dir) {
+  const idx = Math.min(Math.max(catIndex + dir, 0), catOrder.length - 1);
+  if (idx > catReached) catReached = idx;
+  showCat(catOrder[idx]);
+  document.querySelector('.cat-tabs').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 const palette = ['rose','sage','gold'];
