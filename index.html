@@ -670,6 +670,16 @@ function submitSkillsDiscovery() {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') submitSkillsDiscovery(); });
 window.addEventListener('pagehide', submitSkillsDiscovery);
 document.addEventListener('click', e => { if (e.target.closest('.cta-btn')) submitSkillsDiscovery(); });
+// Also save shortly after she finishes typing in an Evidence File box (more reliable than tab-close)
+let _evidenceTimer;
+document.addEventListener('input', e => {
+  if (!e.target.classList || !e.target.classList.contains('reflect-input')) return;
+  clearTimeout(_evidenceTimer);
+  _evidenceTimer = setTimeout(submitSkillsDiscovery, 4000);
+});
+document.addEventListener('focusout', e => {
+  if (e.target.classList && e.target.classList.contains('reflect-input')) { clearTimeout(_evidenceTimer); submitSkillsDiscovery(); }
+});
 
 const skillMap = {
   home1:{label:"People Management",desc:"Managing a household with children means constant negotiation, scheduling, conflict resolution, and meeting the needs of multiple different people simultaneously — often with no budget and no days off.",roles:["Office manager","HR coordinator","Team lead","Event planner","Community manager"]},
