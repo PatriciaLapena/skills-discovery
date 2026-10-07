@@ -670,6 +670,10 @@ function submitSkillsDiscovery() {
 document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') submitSkillsDiscovery(); });
 window.addEventListener('pagehide', submitSkillsDiscovery);
 document.addEventListener('click', e => { if (e.target.closest('.cta-btn')) submitSkillsDiscovery(); });
+// Carry her email to the Blueprint page so it's pre-filled at checkout
+if (userEmail) document.querySelectorAll('a.cta-btn[href^="https://nextchapterblueprint.net"]').forEach(a => {
+  const u = new URL(a.href); u.searchParams.set('email', userEmail); a.href = u.toString();
+});
 // Also save shortly after she finishes typing in an Evidence File box (more reliable than tab-close)
 let _evidenceTimer;
 document.addEventListener('input', e => {
