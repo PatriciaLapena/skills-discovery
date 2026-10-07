@@ -607,25 +607,69 @@ let colorIdx = 0;
 
 // ── Skills Discovery submission tracking ──
 const urlParams = new URLSearchParams(window.location.search);
-const userEmail = urlParams.get('email') || '';
-let alreadySubmitted = false;
+// Emails can't contain spaces: a "+" in the link (e.g. name+tag@gmail.com) arrives
+// as a space when the URL is read, so put it back.
+const userEmail = (urlParams.get('email') || '').trim().replace(/ /g, '+');
+let lastSentSignature = '';
 const SKILLS_DISCOVERY_ENDPOINT = 'https://hooks.zapier.com/hooks/catch/24383948/4dvumfm/';
 
+// The real experiences she checked, grouped by category (e.g. "Food & Hospitality: Restaurant, café, or fast food")
+function experiencesChecked() {
+  const groups = {};
+  document.querySelectorAll('.exp-card.selected').forEach(card => {
+    const sec = card.closest('.exp-section');
+    const tab = sec && document.querySelector('.cat-tab[data-cat="' + sec.id + '"]');
+    const cat = tab ? tab.textContent.replace(/^✓\s*/, '').trim() : 'Other';
+    const title = card.querySelector('.exp-title').textContent.trim();
+    (groups[cat] = groups[cat] || []).push(title);
+  });
+  return Object.entries(groups).map(([cat, items]) => cat + ': ' + items.join('; ')).join('\n');
+}
+
+// Her written Evidence File answers, each paired with its question
+function evidenceFile() {
+  return Array.from(document.querySelectorAll('#phase3 .reflect-card')).map(card => {
+    const q = card.querySelector('.reflect-q').textContent.trim();
+    const a = card.querySelector('textarea').value.trim();
+    return a ? q + '\n' + a : '';
+  }).filter(Boolean).join('\n\n');
+}
+
+// Sends her results to Airtable (via Zapier). Called when she first sees her strengths,
+// and again when she leaves the page or clicks through to the Blueprint, so her
+// Evidence File answers are captured too. Only re-sends if something changed;
+// the Blueprint generator always uses her most recent submission.
 function submitSkillsDiscovery() {
-  if (alreadySubmitted || selected.size === 0 || !userEmail) return;
-  alreadySubmitted = true;
+  if (selected.size === 0 || !userEmail) return;
   const labels = Array.from(selected).map(id => skillMap[id] ? skillMap[id].label : id).join(', ');
+  const experiences = experiencesChecked();
+  const evidence = evidenceFile();
+  const signature = labels + '|' + experiences + '|' + evidence;
+  if (signature === lastSentSignature) return;
+  lastSentSignature = signature;
   const params = new URLSearchParams();
   params.append('email', userEmail);
   params.append('selected_experiences', labels);
   params.append('experience_count', String(selected.size));
+  params.append('experiences_checked', experiences);
+  params.append('evidence_file', evidence);
   params.append('submitted_at', new Date().toISOString());
+  const body = params.toString();
+  try {
+    if (navigator.sendBeacon && navigator.sendBeacon(SKILLS_DISCOVERY_ENDPOINT,
+        new Blob([body], { type: 'application/x-www-form-urlencoded' }))) return;
+  } catch (e) {}
   fetch(SKILLS_DISCOVERY_ENDPOINT, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: params.toString()
+    body, keepalive: true
   }).catch(() => {});
 }
+
+// Capture Evidence File answers when she leaves, switches tabs, or heads to the Blueprint
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') submitSkillsDiscovery(); });
+window.addEventListener('pagehide', submitSkillsDiscovery);
+document.addEventListener('click', e => { if (e.target.closest('.cta-btn')) submitSkillsDiscovery(); });
 
 const skillMap = {
   home1:{label:"People Management",desc:"Managing a household with children means constant negotiation, scheduling, conflict resolution, and meeting the needs of multiple different people simultaneously — often with no budget and no days off.",roles:["Office manager","HR coordinator","Team lead","Event planner","Community manager"]},
