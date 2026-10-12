@@ -203,6 +203,51 @@ body::before{
   background:var(--warm);color:var(--muted);border:1px solid var(--border)
 }
 
+/* ── STRENGTHS MAP (phase 2) ── */
+.sm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 28px}
+.sm-stat{background:white;border:1px solid var(--border);border-radius:16px;padding:16px 10px;text-align:center}
+.sm-stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:500;line-height:1;color:var(--rose-dk)}
+.sm-stat:nth-child(2) b{color:#3D6B56}
+.sm-stat:nth-child(3) b{color:#8B6B30}
+.sm-stat span{display:block;margin-top:6px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+
+.sm-heading{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;text-align:center;margin:8px 0 4px}
+.sm-sub{font-size:13.5px;color:var(--muted);text-align:center;font-weight:300;line-height:1.7;margin:0 auto 18px;max-width:520px}
+
+.fam-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:40px}
+@media(max-width:620px){.fam-grid{grid-template-columns:1fr}.sm-stat b{font-size:30px}}
+.fam{background:white;border:1px solid var(--border);border-radius:18px;padding:18px 18px 16px;position:relative;overflow:hidden}
+.fam::before{content:'';position:absolute;inset:0 0 auto 0;height:5px;background:var(--fc)}
+.fam.top{grid-column:1/-1;background:linear-gradient(180deg,var(--fl) 0,white 70%)}
+.fam-head{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.fam-icon{width:40px;height:40px;border-radius:50%;background:var(--fl);color:var(--fd);display:grid;place-items:center;font-size:19px;flex:none}
+.fam-name{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:500;line-height:1.15}
+.fam-count{font-size:11px;color:var(--fd);font-weight:500;letter-spacing:.06em;margin-top:2px}
+.fam-ribbon{display:inline-block;margin-bottom:10px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;background:var(--fc);color:white;padding:4px 10px;border-radius:20px}
+.fam-mean{font-size:13px;color:var(--muted);font-weight:300;line-height:1.6;margin:4px 0 12px}
+.fam-chips{display:flex;flex-wrap:wrap;gap:6px}
+.fam-chip{font:500 12px 'Jost',sans-serif;padding:6px 12px;border-radius:20px;border:1px solid var(--fl);background:var(--fl);color:var(--fd);cursor:pointer;transition:all .15s}
+.fam-chip:hover{border-color:var(--fc)}
+.fam-chip[aria-expanded="true"]{background:var(--fc);color:white;border-color:var(--fc)}
+.fam-detail{display:none;margin-top:12px;padding:12px 14px;border-radius:12px;background:var(--cream);font-size:13px;color:var(--text);font-weight:300;line-height:1.65}
+.fam-detail.open{display:block;animation:fadeUp .25s ease}
+.fam-detail b{font-weight:500}
+
+.paths{background:white;border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:12px}
+.path-tabs{display:flex;gap:6px;background:var(--warm);border-radius:30px;padding:4px;margin:0 auto 18px;max-width:440px}
+.path-tab{flex:1;border:0;background:none;padding:9px 10px;border-radius:26px;font:500 13px 'Jost',sans-serif;color:var(--muted);cursor:pointer}
+.path-tab.active{background:white;color:var(--rose-dk);box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.path-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media(max-width:620px){.path-list{grid-template-columns:1fr}}
+.path-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--cream);font-size:13.5px}
+.path-item .dots{display:flex;gap:3px;flex:none}
+.path-item .dots i{width:7px;height:7px;border-radius:50%;background:var(--rose-lt)}
+.path-item .dots i.on{background:var(--rose)}
+.path-item .why{margin-left:auto;font-size:11px;color:var(--muted);text-align:right;line-height:1.3}
+.path-item.strong{background:var(--rose-lt)}
+.path-more{display:block;margin:14px auto 0;border:1px solid var(--border);background:white;border-radius:20px;padding:8px 18px;font:500 12px 'Jost',sans-serif;color:var(--muted);cursor:pointer}
+.path-note{font-size:12px;color:var(--muted);text-align:center;font-weight:300;margin-top:14px;line-height:1.6}
+
 /* Confidence layer */
 .conf-block{
   background:white;border:1px solid var(--border);
@@ -489,7 +534,7 @@ body::before{
   <div class="phase" id="phase1">
     <div class="section-head">
       <h2>Your Transferable Strengths</h2>
-      <p>Every experience you selected has been building real, professional-grade skills. Here is what you actually have.</p>
+      <p id="sm-intro">Every experience you selected has been building real, professional-grade skills. Here is what you actually have.</p>
     </div>
     <div id="strengths-list">
       <div class="empty-state"><span>✦</span>Go back and select your experiences first</div>
@@ -856,26 +901,119 @@ function goPhase(n) {
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
+// ── STRENGTHS MAP ──
+// Each skill belongs to one "strength family". The page shows families (not one card per checkbox),
+// then pulls every job and business idea into one ranked list so the possibilities stand out.
+const families = [
+  {key:'people',  name:'People & Relationships',     icon:'❀', c:'#C97B84', l:'#F2DDE0', d:'#8B4E56',
+   mean:'You make people feel looked after, heard and handled — even when they are difficult.',
+   skills:['home1','food2','food3','off3','ret2','care1','exec2']},
+  {key:'organize',name:'Organizing & Making Things Run', icon:'✿', c:'#7D9E8C', l:'#D8EBE2', d:'#3D6B56',
+   mean:'You keep plans, people and a hundred small details on track so nothing falls through the cracks.',
+   skills:['home2','home3','off1','off4','ret3','food1','exec4']},
+  {key:'money',   name:'Money & Accuracy',            icon:'◈', c:'#C9A96E', l:'#F5ECD9', d:'#8B6B30',
+   mean:'People trust you with money and numbers — and you get them right.',
+   skills:['off2','ret4']},
+  {key:'grow',    name:'Selling, Leading & Growing',  icon:'✦', c:'#B5838D', l:'#F3E3E6', d:'#7A4650',
+   mean:'You can win people over, make decisions and move things forward.',
+   skills:['ret1','exec1','exec3']},
+  {key:'make',    name:'Making & Creating',           icon:'✂', c:'#9C8AA5', l:'#EDE7F1', d:'#5F4E69',
+   mean:'You turn ideas into something real that people want to buy.',
+   skills:['food4','care4']},
+  {key:'guide',   name:'Teaching, Caring & Advocating', icon:'☼', c:'#6F9A9C', l:'#DCEBEC', d:'#3C6567',
+   mean:'You help people through hard things, explain what they need to know, and speak up for them.',
+   skills:['care2','care3','home4','life4','life5','life8']},
+  {key:'grit',    name:'Grit & Reinvention',          icon:'⟡', c:'#A58C6F', l:'#F1E8DC', d:'#6E5638',
+   mean:'You keep going, adapt and start again. That is what building a business asks of you most.',
+   skills:['life1','life2','life3','life6','life7']},
+];
+// Roles that describe something she could run herself (business ideas) vs. roles/industries that value her strengths.
+const bizRx = /owner|entrepreneur|business(?! (development|analyst))|consultant|coach|creator|seller|vendor|brand|founder|freelance|independent|private chef|photographer|stylist|meal prep|caterer|wedding planner|event planner|fractional|speaker|virtual assistant|bookkeeper|facilitator|educator|advisor|tutor|personal trainer|agency founder|instructor|e-learning|patient advocate|service$/i;
+let pathTab = 'biz', pathAll = false;
+
 function renderStrengths() {
   const list = document.getElementById('strengths-list');
+  const intro = document.getElementById('sm-intro');
   if(selected.size===0){
     list.innerHTML='<div class="empty-state"><span>✦</span>Go back and select your experiences to reveal your strengths</div>';
     return;
   }
-  list.innerHTML='';
-  let ci=0;
-  selected.forEach(id => {
-    const s = skillMap[id];
-    if(!s) return;
-    const color = palette[ci % 3];
-    ci++;
-    const d = document.createElement('div');
-    d.className = `str-card ${color==='sage'?'sage':color==='gold'?'gold':''}`;
-    d.innerHTML = `<div class="str-label">${s.label} <span class="str-badge">${color==='rose'?'Your strength':color==='sage'?'Proven skill':'Real experience'}</span></div>
-    <div class="str-desc">${s.desc}</div>
-    <div class="str-roles">${s.roles.map(r=>`<span class="str-role">${r}</span>`).join('')}</div>`;
-    list.appendChild(d);
+  // group selected skills by family
+  const fams = families.map(f => ({...f, mine: f.skills.filter(id => selected.has(id))}))
+                       .filter(f => f.mine.length)
+                       .sort((a,b) => b.mine.length - a.mine.length);
+  // tally every role across her skills
+  const tally = {};
+  selected.forEach(id => (skillMap[id]?.roles || []).forEach(r => {
+    (tally[r] = tally[r] || {name:r, from:[]}).from.push(skillMap[id].label);
+  }));
+  const roles = Object.values(tally).sort((a,b) => b.from.length - a.from.length || a.name.localeCompare(b.name));
+  const biz = roles.filter(r => bizRx.test(r.name)), jobs = roles.filter(r => !bizRx.test(r.name));
+
+  intro.textContent = `You checked ${selected.size} experience${selected.size===1?'':'s'}. Here's what they add up to — and where they could take you.`;
+
+  let html = `<div class="sm-stats">
+      <div class="sm-stat"><b>${selected.size}</b><span>Strengths</span></div>
+      <div class="sm-stat"><b>${fams.length}</b><span>Strength ${fams.length===1?'family':'families'}</span></div>
+      <div class="sm-stat"><b>${biz.length}</b><span>Business ideas</span></div>
+    </div>
+    <h3 class="sm-heading">Your strength families</h3>
+    <p class="sm-sub">Your experiences group into these families. Tap any strength to see why it counts.</p>
+    <div class="fam-grid">`;
+  fams.forEach((f, i) => {
+    const top = i === 0 && fams.length > 1 && f.mine.length > (fams[1]?.mine.length || 0);
+    html += `<div class="fam${top?' top':''}" style="--fc:${f.c};--fl:${f.l};--fd:${f.d}">
+      ${top?'<span class="fam-ribbon">Your strongest</span>':''}
+      <div class="fam-head"><div class="fam-icon">${f.icon}</div>
+        <div><div class="fam-name">${f.name}</div><div class="fam-count">${f.mine.length} of your strengths</div></div></div>
+      <p class="fam-mean">${f.mean}</p>
+      <div class="fam-chips">${f.mine.map(id => `<button type="button" class="fam-chip" aria-expanded="false" data-id="${id}" onclick="toggleChip(this)">${skillMap[id].label}</button>`).join('')}</div>
+      <div class="fam-detail"></div>
+    </div>`;
   });
+  html += `</div>
+    <h3 class="sm-heading">Where your strengths could take you</h3>
+    <p class="sm-sub">Every idea below came from your strengths. The more dots, the more of your strengths point to it.</p>
+    <div class="paths">
+      <div class="path-tabs">
+        <button type="button" class="path-tab" data-tab="biz" onclick="setPathTab('biz')">Businesses you could run (${biz.length})</button>
+        <button type="button" class="path-tab" data-tab="jobs" onclick="setPathTab('jobs')">Roles that value you (${jobs.length})</button>
+      </div>
+      <div id="path-body"></div>
+    </div>`;
+  list.innerHTML = html;
+  list._paths = {biz, jobs};
+  pathAll = false;
+  setPathTab(biz.length ? 'biz' : 'jobs');
+}
+
+function toggleChip(btn) {
+  const card = btn.closest('.fam'), box = card.querySelector('.fam-detail');
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  card.querySelectorAll('.fam-chip').forEach(b => b.setAttribute('aria-expanded','false'));
+  if (open) { box.classList.remove('open'); return; }
+  btn.setAttribute('aria-expanded','true');
+  const s = skillMap[btn.dataset.id];
+  box.innerHTML = `<b>${s.label}.</b> ${s.desc}`;
+  box.classList.add('open');
+}
+
+function setPathTab(tab) {
+  pathTab = tab;
+  const list = document.getElementById('strengths-list');
+  const items = list._paths[tab] || [];
+  document.querySelectorAll('.path-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  const max = Math.max(1, ...items.map(r => r.from.length));
+  const LIMIT = 10, shown = pathAll ? items : items.slice(0, LIMIT);
+  const dots = n => `<span class="dots">${Array.from({length: Math.min(max,4)}, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
+  let html = items.length ? `<div class="path-list">${shown.map(r => `<div class="path-item${r.from.length > 1 ? ' strong' : ''}" title="From: ${r.from.join(', ')}">
+      ${dots(r.from.length)}<span>${r.name}</span>${r.from.length > 1 ? `<span class="why">${r.from.length} strengths</span>` : ''}</div>`).join('')}</div>`
+    : `<p class="path-note">Nothing here yet — try the other tab.</p>`;
+  if (items.length > LIMIT) html += `<button type="button" class="path-more" onclick="pathAll=!pathAll;setPathTab(pathTab)">${pathAll ? 'Show fewer' : `Show all ${items.length}`}</button>`;
+  html += `<p class="path-note">${tab === 'biz'
+    ? 'These are starting points, not a to-do list. Notice which ones make you lean in — your Blueprint will narrow them down.'
+    : 'Roles and industries where your strengths are already valued — useful for spotting who your future customers might be.'}</p>`;
+  document.getElementById('path-body').innerHTML = html;
 }
 </script>
 </body>
