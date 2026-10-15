@@ -246,6 +246,15 @@ body::before{
 .path-item .why{margin-left:auto;font-size:11px;color:var(--muted);text-align:right;line-height:1.3}
 .path-item.strong{background:var(--rose-lt)}
 .path-more{display:block;margin:14px auto 0;border:1px solid var(--border);background:white;border-radius:20px;padding:8px 18px;font:500 12px 'Jost',sans-serif;color:var(--muted);cursor:pointer}
+.tease-list{display:grid;gap:8px;margin-top:4px}
+.tease-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:var(--rose-lt);font-size:15px;color:var(--text)}
+.tease-num{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--rose-dk);flex:none;width:18px}
+.tease-item .why{margin-left:auto;font-size:11px;color:var(--muted);text-align:right;line-height:1.3}
+.bp-panel{margin-top:18px;border:1px dashed rgba(201,123,132,.5);border-radius:18px;padding:22px 22px 20px;background:white;text-align:center}
+.bp-panel h4{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:500;color:var(--text);margin:0 0 8px}
+.bp-panel p{font-size:13.5px;color:var(--muted);line-height:1.7;font-weight:300;margin:0 auto 14px;max-width:460px}
+.bp-panel a{display:inline-block;font:500 13px 'Jost',sans-serif;color:var(--rose-dk);text-decoration:none;border-bottom:1px solid var(--rose)}
+.cta-dream{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:21px;line-height:1.5;color:white;margin:0 auto 18px;max-width:520px;position:relative;z-index:1}
 .path-note{font-size:12px;color:var(--muted);text-align:center;font-weight:300;margin-top:14px;line-height:1.6}
 
 /* Confidence layer */
@@ -631,7 +640,8 @@ body::before{
     <div class="cta-block">
       <div class="cta-eyebrow">You're ready. Here's your next step.</div>
       <h2>Get Your Personalized<br><em>Next Chapter Blueprint</em></h2>
-      <p>You've just mapped a lifetime of skills, strengths, and proof. Your Next Chapter Blueprint takes exactly this foundation and shows you 10 personalized business directions — built around your life, your values, and what you're actually good at. Delivered within 2 business days.</p>
+      <div class="cta-dream" id="cta-dream" hidden></div>
+      <p><span id="cta-tally">You've just mapped a lifetime of skills, strengths, and proof.</span> Your Next Chapter Blueprint takes exactly this foundation and shows you 10 personalized business directions — built around your life, your values, and what you're actually good at. Delivered within 2 business days.</p>
       <a href="https://nextchapterblueprint.net" class="cta-btn">Get My Blueprint — $97 →</a>
       <div class="cta-fine">A personalized roadmap created just for you. No fluff. No generic advice. Just your path.</div>
     </div>
@@ -898,8 +908,26 @@ function goPhase(n) {
   });
   if(n===1) { renderStrengths(); submitSkillsDiscovery(); }
   if(n===2) updateConfidenceBuilder();
+  if(n===3) updateFinalCta();
   window.scrollTo({top:0,behavior:'smooth'});
 }
+
+// Final page: reflect her own numbers and her "wouldn't fail" answer back to her.
+function updateFinalCta() {
+  const fams = families.filter(f => f.skills.some(id => selected.has(id))).length;
+  const t = document.getElementById('cta-tally');
+  if (t && selected.size) t.textContent = `You've mapped ${selected.size} strength${selected.size===1?'':'s'} across ${fams} strength ${fams===1?'family':'families'}.`;
+  updateDreamEcho();
+}
+function updateDreamEcho() {
+  const boxes = document.querySelectorAll('#phase3 .reflect-input');
+  const dream = (boxes[boxes.length - 1]?.value || '').trim();
+  const el = document.getElementById('cta-dream');
+  if (!el) return;
+  if (dream) { el.textContent = `You said that if you knew you wouldn't fail, you would: "${dream}". Your Blueprint shows you how far you are from that, and the path toward it.`; el.hidden = false; }
+  else el.hidden = true;
+}
+document.addEventListener('input', e => { if (e.target.closest && e.target.closest('#phase3')) updateDreamEcho(); });
 
 // ── STRENGTHS MAP ──
 // Each skill belongs to one "strength family". The page shows families (not one card per checkbox),
@@ -929,7 +957,6 @@ const families = [
 ];
 // Roles that describe something she could run herself (business ideas) vs. roles/industries that value her strengths.
 const bizRx = /owner|entrepreneur|business(?! (development|analyst))|consultant|coach|creator|seller|vendor|brand|founder|freelance|independent|private chef|photographer|stylist|meal prep|caterer|wedding planner|event planner|fractional|speaker|virtual assistant|bookkeeper|facilitator|educator|advisor|tutor|personal trainer|agency founder|instructor|e-learning|patient advocate|service$/i;
-let pathTab = 'biz', pathAll = false;
 
 function renderStrengths() {
   const list = document.getElementById('strengths-list');
@@ -948,7 +975,7 @@ function renderStrengths() {
     (tally[r] = tally[r] || {name:r, from:[]}).from.push(skillMap[id].label);
   }));
   const roles = Object.values(tally).sort((a,b) => b.from.length - a.from.length || a.name.localeCompare(b.name));
-  const biz = roles.filter(r => bizRx.test(r.name)), jobs = roles.filter(r => !bizRx.test(r.name));
+  const biz = roles.filter(r => bizRx.test(r.name));
 
   intro.textContent = `You checked ${selected.size} experience${selected.size===1?'':'s'}. Here's what they add up to — and where they could take you.`;
 
@@ -971,20 +998,18 @@ function renderStrengths() {
       <div class="fam-detail"></div>
     </div>`;
   });
+  const top3 = biz.slice(0, 3);
+  const bpHref = 'https://nextchapterblueprint.net' + (userEmail ? '?email=' + encodeURIComponent(userEmail) : '');
   html += `</div>
-    <h3 class="sm-heading">Where your strengths could take you</h3>
-    <p class="sm-sub">Every idea below came from your strengths. The more dots, the more of your strengths point to it.</p>
-    <div class="paths">
-      <div class="path-tabs">
-        <button type="button" class="path-tab" data-tab="biz" onclick="setPathTab('biz')">Businesses you could run (${biz.length})</button>
-        <button type="button" class="path-tab" data-tab="jobs" onclick="setPathTab('jobs')">Roles that value you (${jobs.length})</button>
-      </div>
-      <div id="path-body"></div>
+    <h3 class="sm-heading">A glimpse of where this could take you</h3>
+    <p class="sm-sub">Your strengths point to ${biz.length} business idea${biz.length===1?'':'s'}. Here are the three that more of your strengths point to.</p>
+    ${top3.length ? `<div class="tease-list">${top3.map((r,i) => `<div class="tease-item" title="From: ${r.from.join(', ')}"><span class="tease-num">${i+1}</span><span>${r.name}</span>${r.from.length > 1 ? `<span class="why">${r.from.length} of your strengths</span>` : ''}</div>`).join('')}</div>` : ''}
+    <div class="bp-panel">
+      <h4>Which one is really yours?</h4>
+      <p>Your Next Chapter Blueprint weighs ideas like these against the life you want, your energy, your time and your income goal, then gives you the 10 that fit you best and the first step to take.</p>
+      <a href="${bpHref}" class="cta-btn-soft" onclick="submitSkillsDiscovery()">See how the Blueprint works →</a>
     </div>`;
   list.innerHTML = html;
-  list._paths = {biz, jobs};
-  pathAll = false;
-  setPathTab(biz.length ? 'biz' : 'jobs');
 }
 
 function toggleChip(btn) {
@@ -998,23 +1023,6 @@ function toggleChip(btn) {
   box.classList.add('open');
 }
 
-function setPathTab(tab) {
-  pathTab = tab;
-  const list = document.getElementById('strengths-list');
-  const items = list._paths[tab] || [];
-  document.querySelectorAll('.path-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
-  const max = Math.max(1, ...items.map(r => r.from.length));
-  const LIMIT = 10, shown = pathAll ? items : items.slice(0, LIMIT);
-  const dots = n => `<span class="dots">${Array.from({length: Math.min(max,4)}, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</span>`;
-  let html = items.length ? `<div class="path-list">${shown.map(r => `<div class="path-item${r.from.length > 1 ? ' strong' : ''}" title="From: ${r.from.join(', ')}">
-      ${dots(r.from.length)}<span>${r.name}</span>${r.from.length > 1 ? `<span class="why">${r.from.length} strengths</span>` : ''}</div>`).join('')}</div>`
-    : `<p class="path-note">Nothing here yet — try the other tab.</p>`;
-  if (items.length > LIMIT) html += `<button type="button" class="path-more" onclick="pathAll=!pathAll;setPathTab(pathTab)">${pathAll ? 'Show fewer' : `Show all ${items.length}`}</button>`;
-  html += `<p class="path-note">${tab === 'biz'
-    ? 'These are starting points, not a to-do list. Notice which ones make you lean in — your Blueprint will narrow them down.'
-    : 'Roles and industries where your strengths are already valued — useful for spotting who your future customers might be.'}</p>`;
-  document.getElementById('path-body').innerHTML = html;
-}
 </script>
 </body>
 </html>
